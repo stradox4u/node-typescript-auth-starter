@@ -10,19 +10,21 @@ const cors_1 = __importDefault(require("cors"));
 const passport_1 = __importDefault(require("./utils/passport"));
 const database_1 = __importDefault(require("./utils/database"));
 const registerRoutes_1 = __importDefault(require("./routes/registerRoutes"));
+const authenticationRoutes_1 = __importDefault(require("./routes/authenticationRoutes"));
 const port = process.env.APP_PORT;
-const routePrefix = '/api/v1';
+const routePrefix = "/api/v1";
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
     origin: process.env.CORS_ORIGIN,
-    methods: 'GET,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type,Authorization'
+    methods: "GET,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
 }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cookie_parser_1.default)());
 app.use(passport_1.default.initialize());
 app.use(`${routePrefix}/register`, registerRoutes_1.default);
+app.use(`${routePrefix}/auth`, authenticationRoutes_1.default);
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;

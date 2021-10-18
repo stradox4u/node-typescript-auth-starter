@@ -29,3 +29,14 @@ export interface verifyEmailInputs {
   name: string,
   verifyLink: string
 }
+
+export interface loginInput {
+  email: string
+  password: string
+}
+
+export interface filteredUserType {
+  id: string
+  name: string
+  email: string
+}
