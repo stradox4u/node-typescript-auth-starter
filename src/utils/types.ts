@@ -40,3 +40,8 @@ export interface filteredUserType {
   name: string
   email: string
 }
+
+export interface loginTokens {
+  token: string | Error
+  refreshToken: string | Error
+}
