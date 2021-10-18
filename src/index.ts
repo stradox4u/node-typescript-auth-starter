@@ -6,6 +6,7 @@ import cors from 'cors'
 import passport from './utils/passport'
 import { MyError } from "./utils/types"
 import sequelize from "./utils/database"
+import tokenCleanup from "./actions/tokenCleanup"
 
 import regRoutes from "./routes/registerRoutes"
 import authRoutes from "./routes/authenticationRoutes"
@@ -43,16 +44,18 @@ app.use((error: MyError, req: any, res: any, next: Function) => {
 })
 
 const checkDbConn = () => {
-  return sequelize.authenticate()
+  return sequelize
+    .authenticate()
     .then((connection: any) => {
-    console.log('Connection to database successful!')
+      console.log("Connection to database successful!")
     })
     .catch((err: any) => {
-    console.log('Unable to connect to database!')
-  })
+      console.log("Unable to connect to database!")
+    })
 }
 
 checkDbConn()
+tokenCleanup()
 
 app.listen(port)
 
