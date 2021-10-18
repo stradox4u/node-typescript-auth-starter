@@ -8,17 +8,20 @@ import { errorType } from './utils/types'
 import sequelize from './utils/database'
 
 import regRoutes from './routes/registerRoutes'
+import authRoutes from "./routes/authenticationRoutes"
 
 const port: string = process.env.APP_PORT!
-const routePrefix: string = '/api/v1'
+const routePrefix: string = "/api/v1"
 
 const app = express()
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN,
-  methods: 'GET,PUT,PATCH,POST,DELETE',
-  allowedHeaders: 'Content-Type,Authorization'
-}))
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    methods: "GET,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
+  })
+)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -26,6 +29,7 @@ app.use(cookieParser())
 app.use(passport.initialize())
 
 app.use(`${routePrefix}/register`, regRoutes)
+app.use(`${routePrefix}/auth`, authRoutes)
 
 app.use((error: errorType, req: any, res: any, next: Function) => {
   const status = error.statusCode || 500

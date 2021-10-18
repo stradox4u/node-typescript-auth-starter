@@ -15,7 +15,7 @@ const db = require("../models");
 describe("Registration Controller", () => {
     afterEach(() => __awaiter(void 0, void 0, void 0, function* () {
         yield db.User.destroy({
-            truncate: true
+            truncate: true,
         });
     }));
     it("Is able to register a new user", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -29,9 +29,9 @@ describe("Registration Controller", () => {
         };
         yield postRegisterUser(req, {}, () => { });
         const user = yield db.User.findOne({
-            where: { name: 'Test User' }
+            where: { name: "Test User" },
         });
-        (0, chai_1.expect)(user.dataValues.name).to.equal('Test User');
-        (0, chai_1.expect)(user.dataValues.email).to.equal('test@test.com');
+        (0, chai_1.expect)(user.dataValues.name).to.equal("Test User");
+        (0, chai_1.expect)(user.dataValues.email).to.equal("test@test.com");
     }));
 });
