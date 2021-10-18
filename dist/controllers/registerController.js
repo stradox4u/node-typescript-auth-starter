@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postRegisterUser = void 0;
 const express_validator_1 = require("express-validator");
+const types_1 = require("../utils/types");
 const createUser_1 = __importDefault(require("../actions/createUser"));
 const sendVerificationEmail_1 = __importDefault(require("../actions/sendVerificationEmail"));
 function postRegisterUser(req, res, next) {
@@ -21,20 +22,15 @@ function postRegisterUser(req, res, next) {
         try {
             const errors = (0, express_validator_1.validationResult)(req);
             if (!errors.isEmpty()) {
-                const error = new Error('Validation failed!');
-                const errorToThrow = {
-                    error,
-                    statusCode: 422,
-                    data: errors
-                };
-                throw errorToThrow;
+                const error = new types_1.MyError("Validation failed!", 422, errors);
+                throw error;
             }
             const body = req.body;
             const user = yield (0, createUser_1.default)(body);
             (0, sendVerificationEmail_1.default)(user);
             res.status(201).json({
-                message: 'User created successfully!',
-                user: user
+                message: "User created successfully!",
+                user: user,
             });
         }
         catch (err) {

@@ -31,7 +31,7 @@ app.use((error, req, res, next) => {
     const data = error.data;
     res.status(status).json({
         message,
-        data
+        data,
     });
 });
 const checkDbConn = () => {

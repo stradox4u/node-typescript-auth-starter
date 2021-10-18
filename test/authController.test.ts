@@ -1,9 +1,6 @@
 import { expect } from "chai"
-import sinon from "sinon"
 
-import loginUser from "../src/actions/loginUser"
 import { postLogin } from "../src/controllers/authController"
-import { generateToken } from "../src/utils/jwtHelpers"
 import { filteredUserType } from "../src/utils/types"
 
 describe("Auth Controller Tests", () => {
