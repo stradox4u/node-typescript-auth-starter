@@ -15,11 +15,11 @@ export const postLogin = async (req: any, res: any, next: NextFunction) => {
       email: req.user.email,
     }
 
-    res
+    return res
       .cookie("refresh_cookie", refreshToken, {
         expires: expiry,
         httpOnly: true,
-        sameSite: "None",
+        sameSite: "none",
         secure: true,
       })
       .status(200)
