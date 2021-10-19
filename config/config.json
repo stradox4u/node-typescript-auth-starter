@@ -1,0 +1,7 @@
+"test": {
+    "username": "postgres",
+    "password": "",
+    "database": "testing_db",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
