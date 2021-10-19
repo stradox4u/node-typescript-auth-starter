@@ -1,4 +1,4 @@
-export interface UserType {
+export interface UserInterface {
   id: string
   name: string
   email: string
@@ -24,26 +24,26 @@ export class MyError extends Error {
   }
 }
 
-export interface RegisterUserBody {
+export interface RegisterUserBodyInterface {
   name: string
   email: string
   password: string
   confirm_password: string
 }
 
-export interface VerifyEmailInputs {
+export interface VerifyEmailInputsInterface {
   recipient: string
   name: string
   verifyLink: string
 }
 
-export interface FilteredUser {
+export interface FilteredUserInterface {
   id: string
   name: string
   email: string
 }
 
-export interface LoginTokens {
+export interface LoginTokensInterface {
   token: string | Error
   refreshToken: string | Error
 }

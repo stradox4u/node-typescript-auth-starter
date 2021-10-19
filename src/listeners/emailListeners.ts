@@ -1,13 +1,13 @@
 import { EventEmitter } from "events"
 import sgMail from '@sendgrid/mail'
-import { VerifyEmailInputs } from "../utils/types"
+import { VerifyEmailInputsInterface } from "../utils/types"
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY!)
 const sender: string = process.env.SENDGRID_SENDER_EMAIL!
 
 const eventEmitter = new EventEmitter()
 
-eventEmitter.on("verifyEmail", async (inputs: VerifyEmailInputs) => {
+eventEmitter.on("verifyEmail", async (inputs: VerifyEmailInputsInterface) => {
   const msg = {
     to: inputs.recipient,
     from: sender,

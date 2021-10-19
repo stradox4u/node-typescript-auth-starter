@@ -1,8 +1,8 @@
 import eventEmitter from '../listeners/emailListeners'
 import { generateToken } from '../utils/jwtHelpers'
-import { UserType } from "../utils/types"
+import { UserInterface } from "../utils/types"
 
-export const sendVerificationMail = (user: UserType) => {
+export const sendVerificationMail = (user: UserInterface) => {
   try {
     const token = generateToken(
       { userId: user.id },

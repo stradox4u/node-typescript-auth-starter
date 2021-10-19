@@ -1,9 +1,11 @@
 import bcrypt from 'bcryptjs'
-import { RegisterUserBody, UserType } from "../utils/types"
+import { RegisterUserBodyInterface, UserInterface } from "../utils/types"
 
 const db = require("../../models")
 
-export default async (input: RegisterUserBody): Promise<UserType> => {
+export default async (
+  input: RegisterUserBodyInterface
+): Promise<UserInterface> => {
   try {
     const hashedPw = await bcrypt.hash(input.password, 12)
 

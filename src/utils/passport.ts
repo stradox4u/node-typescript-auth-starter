@@ -5,7 +5,7 @@ import { ExtractJwt } from "passport-jwt"
 import bcrypt from "bcryptjs"
 
 const db = require("../../models")
-import { UserType } from "../utils/types"
+import { UserInterface } from "../utils/types"
 
 const LocalStrategy = localStrat.Strategy
 const JwtStrategy = jwtStrat.Strategy
@@ -20,7 +20,7 @@ passport.use(
       return db.User.findOne({
         where: { email: username },
       })
-        .then((user: UserType) => {
+        .then((user: UserInterface) => {
           if (!user) {
             return done(null, false, { message: "Incorrect email!" })
           }
@@ -48,7 +48,7 @@ passport.use(
       return db.User.findOne({
         where: { id: jwt_payload.userId },
       })
-        .then((user: UserType) => {
+        .then((user: UserInterface) => {
           if (user) {
             return done(null, user)
           } else {

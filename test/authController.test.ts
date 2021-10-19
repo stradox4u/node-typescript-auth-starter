@@ -7,7 +7,7 @@ import {
   postLogout,
 } from "../src/controllers/authController"
 import { generateToken } from "../src/utils/jwtHelpers"
-import { FilteredUser, UserType } from "../src/utils/types"
+import { FilteredUserInterface, UserInterface } from "../src/utils/types"
 
 describe("Auth Controller Tests", () => {
   beforeEach(() => {
@@ -24,14 +24,14 @@ describe("Auth Controller Tests", () => {
     }
     interface loginReturn {
       message: string
-      user: FilteredUser
+      user: FilteredUserInterface
     }
 
     const res = {
       cookieText: "",
       cookieName: "",
       statusCode: 500,
-      user: {} as FilteredUser,
+      user: {} as FilteredUserInterface,
       cookie: function (name: string, value: string) {
         this.cookieText = value
         this.cookieName = name

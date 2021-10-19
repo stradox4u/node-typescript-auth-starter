@@ -7,7 +7,7 @@ import { decodeToken } from "../utils/jwtHelpers"
 const db = require("../../models")
 import createTokens from "../actions/loginUser"
 import { getExpiry } from "../utils/cookieHelpers"
-import { FilteredUser, MyError, UserType } from "../utils/types"
+import { FilteredUserInterface, MyError, UserInterface } from "../utils/types"
 import filterUser from "../actions/filterUser"
 
 export const postLogin = async (req: any, res: any, next: NextFunction) => {
@@ -15,7 +15,7 @@ export const postLogin = async (req: any, res: any, next: NextFunction) => {
     const { token, refreshToken } = createTokens(req.user)
     const expiry = getExpiry()
 
-    const user: FilteredUser = {
+    const user: FilteredUserInterface = {
       id: req.user.id,
       name: req.user.name,
       email: req.user.email,
@@ -122,11 +122,11 @@ export const patchVerifyEmail = async (
       const error = new MyError("Verification failed", 500)
       throw error
     }
-    const filteredUser = filterUser(updatedUser[1][0].dataValues)
+    const FilteredUserInterface = filterUser(updatedUser[1][0].dataValues)
 
     res.status(200).json({
       message: "Email successfully verified",
-      user: filteredUser,
+      user: FilteredUserInterface,
     })
   } catch (err: any) {
     if (!err.statusCode) {

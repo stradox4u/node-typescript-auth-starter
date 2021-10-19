@@ -1,7 +1,7 @@
 import { NextFunction } from 'express'
 import { validationResult } from 'express-validator'
 
-import { MyError, RegisterUserBody } from "../utils/types"
+import { MyError, RegisterUserBodyInterface } from "../utils/types"
 import createUser from "../actions/createUser"
 import sendVerificationMail from "../actions/sendVerificationEmail"
 
@@ -13,7 +13,7 @@ export async function postRegisterUser(req: any, res: any, next: NextFunction) {
 
       throw error
     }
-    const body: RegisterUserBody = req.body
+    const body: RegisterUserBodyInterface = req.body
 
     const user = await createUser(body)
 

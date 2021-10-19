@@ -4,7 +4,7 @@ import { body } from 'express-validator'
 const db = require('../../models')
 
 import { postRegisterUser } from '../controllers/registerController'
-import { UserType } from "../utils/types"
+import { UserInterface } from "../utils/types"
 
 const router = Router()
 
@@ -32,7 +32,7 @@ router.post(
       .custom((val, { req }) => {
         return db.User.findOne({
           where: { email: val },
-        }).then((user: UserType) => {
+        }).then((user: UserInterface) => {
           if (user) {
             return Promise.reject("Email is already taken!")
           }
