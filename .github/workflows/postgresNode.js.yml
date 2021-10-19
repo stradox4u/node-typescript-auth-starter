@@ -17,9 +17,9 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    - uses: dentarg/postgres@1.2.0
-    - name: PostgreSQL in GitHub Actions VM
     - uses: actions/checkout@v2
+    - name: PostgreSQL in GitHub Actions VM
+      uses: dentarg/postgres@1.2.0
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
