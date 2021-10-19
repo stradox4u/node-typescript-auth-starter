@@ -2,8 +2,22 @@
   "test": {
     "username": "postgres",
     "password": "password",
-    "database": "testing_db",
+    "database": "node_auth_testing_db",
     "host": "localhost",
     "dialect": "postgres"
+  },
+  "development": {
+    "username": "postgres",
+    "password": "password",
+    "database": "node-auth",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "",
+    "password": "",
+    "database": "",
+    "host": "",
+    "dialect": ""
   }
 }
