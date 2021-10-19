@@ -52,7 +52,6 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
 exports.postLogin = postLogin;
 const postLogout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log(req.cookies);
         const user = yield db.User.update({
             blacklisted_tokens: sequelize_1.Sequelize.fn("array_append", sequelize_1.Sequelize.col("blacklisted_tokens"), req.cookies.refresh_cookie),
         }, {

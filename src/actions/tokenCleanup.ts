@@ -22,6 +22,5 @@ export default async () => {
     })
     user.blacklisted_tokens = filtered
     await user.save()
-    console.log(user.blacklisted_tokens)
   })
 }

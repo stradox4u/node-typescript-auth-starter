@@ -41,7 +41,6 @@ export const postLogin = async (req: any, res: any, next: NextFunction) => {
 
 export const postLogout = async (req: any, res: any, next: NextFunction) => {
   try {
-    console.log(req.cookies)
     const user = await db.User.update(
       {
         blacklisted_tokens: Sequelize.fn(
