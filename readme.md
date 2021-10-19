@@ -1,5 +1,5 @@
 # Basic Authentication API
-Here's a basic API for user authentication using **Node JS**, **Express JS** and **Typescript**, complete with tests.
+Here's a basic API for user authentication using **Node JS**, **Express JS**, **Passport JS** and **Typescript**, complete with tests.
 
 ## Installation
 - git clone
