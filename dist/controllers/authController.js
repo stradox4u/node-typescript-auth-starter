@@ -14,12 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.patchVerifyEmail = exports.postResendVerificationMail = exports.postLogout = exports.postLogin = void 0;
 const sequelize_1 = require("sequelize");
-const sendVerificationEmail_1 = __importDefault(require("src/actions/sendVerificationEmail"));
-const jwtHelpers_1 = require("src/utils/jwtHelpers");
+const sendVerificationEmail_1 = require("../actions/sendVerificationEmail");
+const jwtHelpers_1 = require("../utils/jwtHelpers");
 const db = require("../../models");
 const loginUser_1 = __importDefault(require("../actions/loginUser"));
 const cookieHelpers_1 = require("../utils/cookieHelpers");
 const types_1 = require("../utils/types");
+const filterUser_1 = __importDefault(require("../actions/filterUser"));
 const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, refreshToken } = (0, loginUser_1.default)(req.user);
@@ -80,7 +81,7 @@ const postLogout = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 exports.postLogout = postLogout;
 const postResendVerificationMail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        (0, sendVerificationEmail_1.default)(req.user);
+        (0, sendVerificationEmail_1.sendVerificationMail)(req.user);
         res.status(200).json({
             message: "Verification email resent successfully",
         });
@@ -109,9 +110,10 @@ const patchVerifyEmail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             const error = new types_1.MyError("Verification failed", 500);
             throw error;
         }
+        const filteredUser = (0, filterUser_1.default)(updatedUser[1][0].dataValues);
         res.status(200).json({
             message: "Email successfully verified",
-            user: updatedUser[1][0].dataValues,
+            user: filteredUser,
         });
     }
     catch (err) {

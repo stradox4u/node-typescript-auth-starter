@@ -1,13 +1,14 @@
 import { NextFunction } from "express"
 import { JwtPayload } from "jsonwebtoken"
 import { Sequelize } from "sequelize"
-import sendVerificationMail from "src/actions/sendVerificationEmail"
-import { decodeToken } from "src/utils/jwtHelpers"
+import { sendVerificationMail } from "../actions/sendVerificationEmail"
+import { decodeToken } from "../utils/jwtHelpers"
 
 const db = require("../../models")
 import createTokens from "../actions/loginUser"
 import { getExpiry } from "../utils/cookieHelpers"
 import { filteredUserType, MyError, userType } from "../utils/types"
+import filterUser from "../actions/filterUser"
 
 export const postLogin = async (req: any, res: any, next: NextFunction) => {
   try {
@@ -103,8 +104,9 @@ export const patchVerifyEmail = async (
     const token: string = req.body.token
     const decodedToken = decodeToken(
       token,
-      process.env.VERIFY_JWT_SECRET!
+      process.env.VERIFY_JWT_SECRET as string
     ) as JwtPayload
+
     const userId = decodedToken.userId
 
     const updatedUser = await db.User.update(
@@ -120,10 +122,11 @@ export const patchVerifyEmail = async (
       const error = new MyError("Verification failed", 500)
       throw error
     }
+    const filteredUser = filterUser(updatedUser[1][0].dataValues)
 
     res.status(200).json({
       message: "Email successfully verified",
-      user: updatedUser[1][0].dataValues,
+      user: filteredUser,
     })
   } catch (err: any) {
     if (!err.statusCode) {

@@ -2,6 +2,7 @@ import { Router } from "express"
 
 import passport from "../utils/passport"
 import {
+  patchVerifyEmail,
   postLogin,
   postLogout,
   postResendVerificationMail,
@@ -29,5 +30,7 @@ router.post(
   isOwner,
   postResendVerificationMail
 )
+
+router.patch("/verify/email", patchVerifyEmail)
 
 export default router
