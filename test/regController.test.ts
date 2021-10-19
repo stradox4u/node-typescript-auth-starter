@@ -1,7 +1,9 @@
 import { expect } from "chai"
+import sinon from "sinon"
 
 const { postRegisterUser } = require("../dist/controllers/registerController")
 const db = require("../models")
+const sendVerificationEmail = require("../src/actions/sendVerificationEmail")
 
 describe("Registration Controller", () => {
   afterEach(async () => {
@@ -19,6 +21,8 @@ describe("Registration Controller", () => {
       },
     }
 
+    const myStub = sinon.stub(sendVerificationEmail, "sendVerificationMail")
+
     await postRegisterUser(req, {}, () => {})
 
     const user = await db.User.findOne({
@@ -27,5 +31,7 @@ describe("Registration Controller", () => {
 
     expect(user.dataValues.name).to.equal("Test User")
     expect(user.dataValues.email).to.equal("test@test.com")
+
+    myStub.restore()
   })
 })

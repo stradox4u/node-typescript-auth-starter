@@ -10,4 +10,6 @@ const isOwner_1 = __importDefault(require("../middleware/isOwner"));
 const router = (0, express_1.Router)();
 router.post("/login", passport_1.default.authenticate("local", { session: false }), authController_1.postLogin);
 router.post("/logout/:userId", passport_1.default.authenticate("jwt", { session: false }), isOwner_1.default, authController_1.postLogout);
+router.post("/verify/resend/:userId", passport_1.default.authenticate("jwt", { session: false }), isOwner_1.default, authController_1.postResendVerificationMail);
+router.patch("/verify/email", authController_1.patchVerifyEmail);
 exports.default = router;

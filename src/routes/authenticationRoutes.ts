@@ -1,7 +1,12 @@
 import { Router } from "express"
 
 import passport from "../utils/passport"
-import { postLogin, postLogout } from "../controllers/authController"
+import {
+  patchVerifyEmail,
+  postLogin,
+  postLogout,
+  postResendVerificationMail,
+} from "../controllers/authController"
 import isOwner from "../middleware/isOwner"
 
 const router = Router()
@@ -18,5 +23,14 @@ router.post(
   isOwner,
   postLogout
 )
+
+router.post(
+  "/verify/resend/:userId",
+  passport.authenticate("jwt", { session: false }),
+  isOwner,
+  postResendVerificationMail
+)
+
+router.patch("/verify/email", patchVerifyEmail)
 
 export default router

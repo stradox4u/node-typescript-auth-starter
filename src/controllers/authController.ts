@@ -1,10 +1,14 @@
 import { NextFunction } from "express"
+import { JwtPayload } from "jsonwebtoken"
 import { Sequelize } from "sequelize"
+import { sendVerificationMail } from "../actions/sendVerificationEmail"
+import { decodeToken } from "../utils/jwtHelpers"
 
 const db = require("../../models")
 import createTokens from "../actions/loginUser"
 import { getExpiry } from "../utils/cookieHelpers"
 import { filteredUserType, MyError, userType } from "../utils/types"
+import filterUser from "../actions/filterUser"
 
 export const postLogin = async (req: any, res: any, next: NextFunction) => {
   try {
@@ -62,6 +66,67 @@ export const postLogout = async (req: any, res: any, next: NextFunction) => {
 
     res.status(200).json({
       message: "Logged out",
+    })
+  } catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500
+    }
+    next(err)
+    return err
+  }
+}
+
+export const postResendVerificationMail = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {
+  try {
+    sendVerificationMail(req.user)
+    res.status(200).json({
+      message: "Verification email resent successfully",
+    })
+  } catch (err: any) {
+    if (!err.statuscode) {
+      err.statusCode = 500
+    }
+    next(err)
+    return err
+  }
+}
+
+export const patchVerifyEmail = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {
+  try {
+    const token: string = req.body.token
+    const decodedToken = decodeToken(
+      token,
+      process.env.VERIFY_JWT_SECRET as string
+    ) as JwtPayload
+
+    const userId = decodedToken.userId
+
+    const updatedUser = await db.User.update(
+      {
+        email_verified_at: new Date(),
+      },
+      {
+        where: { id: userId },
+        returning: true,
+      }
+    )
+    if (!updatedUser[1][0].dataValues) {
+      const error = new MyError("Verification failed", 500)
+      throw error
+    }
+    const filteredUser = filterUser(updatedUser[1][0].dataValues)
+
+    res.status(200).json({
+      message: "Email successfully verified",
+      user: filteredUser,
     })
   } catch (err: any) {
     if (!err.statusCode) {

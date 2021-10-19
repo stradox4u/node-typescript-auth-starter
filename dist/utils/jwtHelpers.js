@@ -15,6 +15,7 @@ const decodeToken = (token, secret) => {
         return decoded;
     }
     catch (err) {
+        console.log(err);
         throw err;
     }
 };

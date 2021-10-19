@@ -1,7 +1,12 @@
 import { expect } from "chai"
 
 const db = require("../models")
-import { postLogin, postLogout } from "../src/controllers/authController"
+import {
+  patchVerifyEmail,
+  postLogin,
+  postLogout,
+} from "../src/controllers/authController"
+import { generateToken } from "../src/utils/jwtHelpers"
 import { filteredUserType, userType } from "../src/utils/types"
 
 describe("Auth Controller Tests", () => {
@@ -108,6 +113,38 @@ describe("Auth Controller Tests", () => {
 
     expect(res.statusCode).to.equal(200)
     expect(res.message).to.equal("Logged out")
+
+    await db.User.destroy({
+      truncate: true,
+    })
+  })
+
+  it("Correctly verifies the user's email address", async () => {
+    process.env.VERIFY_JWT_SECRET = "s1rL3wis"
+    const newUser = await db.User.create({
+      name: "Test User",
+      email: "test@test.com",
+      password: "hashedPassword",
+    })
+
+    const verifyToken = generateToken(
+      { userId: newUser.id },
+      process.env.VERIFY_JWT_SECRET,
+      "10m"
+    )
+
+    const req = {
+      body: {
+        token: verifyToken,
+      },
+    }
+
+    await patchVerifyEmail(req, {}, () => {})
+    const updatedUser = await db.User.findOne({
+      where: { id: newUser.id },
+    })
+
+    expect(updatedUser.email_verified_at).not.to.equal(null)
 
     await db.User.destroy({
       truncate: true,
