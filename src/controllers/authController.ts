@@ -7,7 +7,7 @@ import { decodeToken } from "../utils/jwtHelpers"
 const db = require("../../models")
 import createTokens from "../actions/loginUser"
 import { getExpiry } from "../utils/cookieHelpers"
-import { filteredUserType, MyError, userType } from "../utils/types"
+import { FilteredUser, MyError, UserType } from "../utils/types"
 import filterUser from "../actions/filterUser"
 
 export const postLogin = async (req: any, res: any, next: NextFunction) => {
@@ -15,7 +15,7 @@ export const postLogin = async (req: any, res: any, next: NextFunction) => {
     const { token, refreshToken } = createTokens(req.user)
     const expiry = getExpiry()
 
-    const user: filteredUserType = {
+    const user: FilteredUser = {
       id: req.user.id,
       name: req.user.name,
       email: req.user.email,

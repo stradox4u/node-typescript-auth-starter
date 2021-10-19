@@ -1,7 +1,7 @@
 import { generateToken } from "../utils/jwtHelpers"
-import { loginTokens, userType } from "../utils/types"
+import { LoginTokens, UserType } from "../utils/types"
 
-const createTokens = (user: userType): loginTokens => {
+const createTokens = (user: UserType): LoginTokens => {
   const token: string | Error = generateToken(
     { userId: user.id },
     process.env.ACCESS_JWT_SECRET!,

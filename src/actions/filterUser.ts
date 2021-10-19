@@ -1,6 +1,6 @@
-import { filteredUserType, userType } from "src/utils/types"
+import { FilteredUser, UserType } from "src/utils/types"
 
-export default (user: userType): filteredUserType => {
+export default (user: UserType): FilteredUser => {
   const { id, name, email } = user
   return { id, name, email }
 }
