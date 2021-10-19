@@ -10,11 +10,18 @@ export interface userType {
   updatedAt: Date
 }
 
-export interface errorType {
-  error?: Error,
-  message?: string,
-  statusCode?: number,
-  data?: object
+export class MyError extends Error {
+  public statusCode
+  public data
+  public title: string
+
+  constructor(title: string, statusCode: number, data?: object) {
+    super(title)
+    Object.setPrototypeOf(this, MyError)
+    this.statusCode = statusCode
+    this.data = data
+    this.title = title
+  }
 }
 
 export interface registerUserBody {

@@ -9,6 +9,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
 const passport_1 = __importDefault(require("./utils/passport"));
 const database_1 = __importDefault(require("./utils/database"));
+const tokenCleanup_1 = __importDefault(require("./actions/tokenCleanup"));
 const registerRoutes_1 = __importDefault(require("./routes/registerRoutes"));
 const authenticationRoutes_1 = __importDefault(require("./routes/authenticationRoutes"));
 const port = process.env.APP_PORT;
@@ -31,17 +32,19 @@ app.use((error, req, res, next) => {
     const data = error.data;
     res.status(status).json({
         message,
-        data
+        data,
     });
 });
 const checkDbConn = () => {
-    return database_1.default.authenticate()
+    return database_1.default
+        .authenticate()
         .then((connection) => {
-        console.log('Connection to database successful!');
+        console.log("Connection to database successful!");
     })
         .catch((err) => {
-        console.log('Unable to connect to database!');
+        console.log("Unable to connect to database!");
     });
 };
 checkDbConn();
+(0, tokenCleanup_1.default)();
 app.listen(port);

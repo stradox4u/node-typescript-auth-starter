@@ -4,10 +4,11 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 
 import passport from './utils/passport'
-import { errorType } from './utils/types'
-import sequelize from './utils/database'
+import { MyError } from "./utils/types"
+import sequelize from "./utils/database"
+import tokenCleanup from "./actions/tokenCleanup"
 
-import regRoutes from './routes/registerRoutes'
+import regRoutes from "./routes/registerRoutes"
 import authRoutes from "./routes/authenticationRoutes"
 
 const port: string = process.env.APP_PORT!
@@ -31,28 +32,30 @@ app.use(passport.initialize())
 app.use(`${routePrefix}/register`, regRoutes)
 app.use(`${routePrefix}/auth`, authRoutes)
 
-app.use((error: errorType, req: any, res: any, next: Function) => {
+app.use((error: MyError, req: any, res: any, next: Function) => {
   const status = error.statusCode || 500
   const message = error.message
   const data = error.data
 
   res.status(status).json({
     message,
-    data
+    data,
   })
 })
 
 const checkDbConn = () => {
-  return sequelize.authenticate()
+  return sequelize
+    .authenticate()
     .then((connection: any) => {
-    console.log('Connection to database successful!')
+      console.log("Connection to database successful!")
     })
     .catch((err: any) => {
-    console.log('Unable to connect to database!')
-  })
+      console.log("Unable to connect to database!")
+    })
 }
 
 checkDbConn()
+tokenCleanup()
 
 app.listen(port)
 

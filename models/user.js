@@ -24,7 +24,10 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     email_verified_at: DataTypes.DATE,
     password_reset_token: DataTypes.STRING,
-    blacklisted_tokens: DataTypes.ARRAY(DataTypes.STRING)
+    blacklisted_tokens: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      defaultValue: []
+    }
   }, {
     sequelize,
     modelName: 'User',

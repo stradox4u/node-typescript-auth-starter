@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const passport_1 = __importDefault(require("../utils/passport"));
 const authController_1 = require("../controllers/authController");
+const isOwner_1 = __importDefault(require("../middleware/isOwner"));
 const router = (0, express_1.Router)();
 router.post("/login", passport_1.default.authenticate("local", { session: false }), authController_1.postLogin);
+router.post("/logout/:userId", passport_1.default.authenticate("jwt", { session: false }), isOwner_1.default, authController_1.postLogout);
 exports.default = router;

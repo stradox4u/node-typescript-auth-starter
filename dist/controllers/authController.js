@@ -12,9 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postLogin = void 0;
+exports.postLogout = exports.postLogin = void 0;
+const sequelize_1 = require("sequelize");
+const db = require("../../models");
 const loginUser_1 = __importDefault(require("../actions/loginUser"));
 const cookieHelpers_1 = require("../utils/cookieHelpers");
+const types_1 = require("../utils/types");
 const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { token, refreshToken } = (0, loginUser_1.default)(req.user);
@@ -24,11 +27,11 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             name: req.user.name,
             email: req.user.email,
         };
-        return res
+        res
             .cookie("refresh_cookie", refreshToken, {
             expires: expiry,
             httpOnly: true,
-            sameSite: "none",
+            // sameSite: "None",
             secure: true,
         })
             .status(200)
@@ -47,3 +50,29 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.postLogin = postLogin;
+const postLogout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield db.User.update({
+            blacklisted_tokens: sequelize_1.Sequelize.fn("array_append", sequelize_1.Sequelize.col("blacklisted_tokens"), req.cookies.refresh_cookie),
+        }, {
+            where: { id: req.user.id },
+            returning: true,
+        });
+        if (!user[1][0].dataValues) {
+            const error = new types_1.MyError("User not found", 404);
+            throw error;
+        }
+        req.logout();
+        res.status(200).json({
+            message: "Logged out",
+        });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+        return err;
+    }
+});
+exports.postLogout = postLogout;
