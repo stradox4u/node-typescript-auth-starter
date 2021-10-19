@@ -1,6 +1,8 @@
 # Basic Authentication API
 Here's a basic API for user authentication using **Node JS**, **Express JS**, **Passport JS** and **Typescript**, complete with tests.
 
+It uses an email and password for signup and subsequent logins, with *JWT* authentication for subsequent requests. Blacklisted refresh tokens are stored in the user model, and access tokens only last for 10 mins, although the token validity could be configured.
+
 ## Installation
 - git clone
 - npm install
