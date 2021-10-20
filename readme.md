@@ -9,6 +9,7 @@ It uses an email and password for signup and subsequent logins, with *JWT* authe
 - create a config/config.json in the project root, and choose your database (SQL) dialect
 - run *npx sequelize-cli db:migrate*
 - create a **Sendgrid** account, and update the API key and your email template Ids
+- an example *.env* file is provided. Create your own, using it as a template, and fill out all the fields
 
 ## Running
 - To run the development server: *npm run dev*
