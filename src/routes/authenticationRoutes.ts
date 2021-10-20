@@ -8,6 +8,7 @@ import {
   postLogin,
   postLogout,
   postPasswordReset,
+  postRefreshTokens,
   postResendVerificationMail,
 } from "../controllers/authController"
 import isOwner from "../middleware/isOwner"
@@ -67,5 +68,7 @@ router.patch(
   ],
   patchPasswordUpdate
 )
+
+router.post("/tokens/refresh", postRefreshTokens)
 
 export default router

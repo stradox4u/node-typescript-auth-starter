@@ -198,5 +198,46 @@ const patchPasswordUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.patchPasswordUpdate = patchPasswordUpdate;
-const postRefreshTokens = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { });
+const postRefreshTokens = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b;
+    const refToken = req.cookies.refresh_cookie;
+    try {
+        const decodedToken = (0, jwtHelpers_1.decodeToken)(refToken, process.env.REFRESH_JWT_SECRET);
+        const { userId } = decodedToken;
+        const user = yield db.User.findOne({
+            where: { id: userId },
+        });
+        if (!user) {
+            const error = new types_1.MyError("User not found", 404);
+            throw error;
+        }
+        if ((_b = user.blacklisted_tokens) === null || _b === void 0 ? void 0 : _b.includes(refToken)) {
+            const error = new types_1.MyError("Unauthorized!", 401);
+            throw error;
+        }
+        const { token, refreshToken } = (0, loginUser_1.default)(user);
+        const filteredUser = (0, filterUser_1.default)(user);
+        const expiry = (0, cookieHelpers_1.getExpiry)();
+        res
+            .cookie("refresh_cookie", refreshToken, {
+            expires: expiry,
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+        })
+            .status(200)
+            .json({
+            token: token,
+            expires_in: 600000,
+            user: filteredUser,
+        });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+        return err;
+    }
+});
 exports.postRefreshTokens = postRefreshTokens;

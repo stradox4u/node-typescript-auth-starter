@@ -35,4 +35,5 @@ router.patch("/password/update", [
     }),
     (0, express_validator_1.body)("token").trim().isString(),
 ], authController_1.patchPasswordUpdate);
+router.post("/tokens/refresh", authController_1.postRefreshTokens);
 exports.default = router;
