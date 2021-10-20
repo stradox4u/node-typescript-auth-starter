@@ -112,10 +112,10 @@ const patchVerifyEmail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             const error = new types_1.MyError("Verification failed", 500);
             throw error;
         }
-        const FilteredUserInterface = (0, filterUser_1.default)(updatedUser[1][0].dataValues);
+        const filteredUser = (0, filterUser_1.default)(updatedUser[1][0].dataValues);
         res.status(200).json({
             message: "Email successfully verified",
-            user: FilteredUserInterface,
+            user: filteredUser,
         });
     }
     catch (err) {
@@ -201,7 +201,6 @@ exports.patchPasswordUpdate = patchPasswordUpdate;
 const postRefreshTokens = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const refToken = req.cookies.refresh_cookie;
-    console.log();
     try {
         const decodedToken = (0, jwtHelpers_1.decodeToken)(refToken, process.env.REFRESH_JWT_SECRET);
         const { userId } = decodedToken;

@@ -128,11 +128,11 @@ export const patchVerifyEmail = async (
       const error = new MyError("Verification failed", 500)
       throw error
     }
-    const FilteredUserInterface = filterUser(updatedUser[1][0].dataValues)
+    const filteredUser = filterUser(updatedUser[1][0].dataValues)
 
     res.status(200).json({
       message: "Email successfully verified",
-      user: FilteredUserInterface,
+      user: filteredUser,
     })
   } catch (err: any) {
     if (!err.statusCode) {
@@ -235,7 +235,6 @@ export const postRefreshTokens = async (
   next: NextFunction
 ) => {
   const refToken = req.cookies.refresh_cookie
-  console.log()
   try {
     const decodedToken = decodeToken(
       refToken,
