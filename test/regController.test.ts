@@ -1,27 +1,26 @@
 import { expect } from "chai"
-import sinon from "sinon"
+import Sinon from "sinon"
 
-const { postRegisterUser } = require("../dist/controllers/registerController")
+const { postRegisterUser } = require("../src/controllers/registerController")
 const db = require("../models")
-const sendVerificationEmail = require("../src/actions/sendVerificationEmail")
+import * as sendMails from "../src/actions/sendEmails"
 
-describe("Registration Controller", () => {
+describe("Registration Controller Tests", () => {
   afterEach(async () => {
     await db.User.destroy({
       truncate: true,
     })
   })
+  const req = {
+    body: {
+      name: "Test User",
+      email: "test@test.com",
+      password: "password",
+      confirm_password: "password",
+    },
+  }
   it("Is able to register a new user", async () => {
-    const req = {
-      body: {
-        name: "Test User",
-        email: "test@test.com",
-        password: "password",
-        confirm_password: "password",
-      },
-    }
-
-    const myStub = sinon.stub(sendVerificationEmail, "sendVerificationMail")
+    const myStub = Sinon.stub(sendMails, "sendVerificationMail")
 
     await postRegisterUser(req, {}, () => {})
 
@@ -31,6 +30,20 @@ describe("Registration Controller", () => {
 
     expect(user.dataValues.name).to.equal("Test User")
     expect(user.dataValues.email).to.equal("test@test.com")
+
+    myStub.restore()
+  })
+
+  it("Sends verification email on registration", async () => {
+    const myStub = Sinon.stub(sendMails, "sendVerificationMail")
+
+    await postRegisterUser(req, {}, () => {})
+
+    const user = await db.User.findOne({
+      where: { name: "Test User" },
+    })
+
+    expect(myStub.called).to.be.true
 
     myStub.restore()
   })

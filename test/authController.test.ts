@@ -1,14 +1,18 @@
 import { expect } from "chai"
+import sinon from "sinon"
+import bcrypt from "bcryptjs"
 
 const db = require("../models")
 import {
+  patchPasswordUpdate,
   patchVerifyEmail,
   postLogin,
   postLogout,
   postPasswordReset,
 } from "../src/controllers/authController"
 import { generateToken } from "../src/utils/jwtHelpers"
-import { FilteredUserInterface, UserInterface } from "../src/utils/types"
+import { FilteredUserInterface } from "../src/utils/types"
+import * as sendMails from "../src/actions/sendEmails"
 
 describe("Auth Controller Tests", () => {
   beforeEach(() => {
@@ -152,7 +156,7 @@ describe("Auth Controller Tests", () => {
     })
   })
 
-  it("Throws error if user is not found", async () => {
+  it("Throws error if user is not found on password reset request", async () => {
     process.env.RESET_JWT_SECRET = "s1rL3wis"
     const newUser = await db.User.create({
       name: "Test User",
@@ -165,9 +169,18 @@ describe("Auth Controller Tests", () => {
         email: "notTest@test.com",
       },
     }
+
+    const emailStub = sinon.stub(sendMails, "sendPasswordResetMail")
     const result = await postPasswordReset(req, {}, () => {})
 
     expect(result).to.throw
+    expect(result).to.have.property("statusCode", 404)
+    expect(result).to.have.property("title", "User not found!")
+
+    await db.User.destroy({
+      truncate: true,
+    })
+    emailStub.restore()
   })
 
   it("Sends an email to the user on password reset request", async () => {
@@ -183,5 +196,86 @@ describe("Auth Controller Tests", () => {
         email: "test@test.com",
       },
     }
+    const emailStub = sinon.stub(sendMails, "sendPasswordResetMail")
+    await postPasswordReset(req, {}, () => {})
+
+    expect(emailStub.called).to.be.true
+    await db.User.destroy({
+      truncate: true,
+    })
+
+    emailStub.restore()
+  })
+
+  it("Successfully updates the user's password", async () => {
+    process.env.RESET_JWT_SECRET = "s1rL3wis"
+    const newUser = await db.User.create({
+      name: "Test User",
+      email: "test@test.com",
+      password: "password",
+    })
+
+    const token = generateToken(
+      { userId: newUser.id },
+      process.env.RESET_JWT_SECRET,
+      "10m"
+    )
+    newUser.password_reset_token = token
+    await newUser.save()
+
+    const req = {
+      body: {
+        password: "newPassword",
+        token: token,
+      },
+    }
+
+    const emailStub = sinon.stub(sendMails, "sendPasswordUpdateMail")
+
+    await patchPasswordUpdate(req, {}, () => {})
+
+    const user = await db.User.findOne({
+      where: { id: newUser.id },
+    })
+    const passwordUpdated = await bcrypt.compare(
+      req.body.password,
+      user.password
+    )
+
+    expect(passwordUpdated).to.be.true
+
+    emailStub.restore()
+  })
+
+  it("Sends an email on successful password update", async () => {
+    process.env.RESET_JWT_SECRET = "s1rL3wis"
+    const newUser = await db.User.create({
+      name: "Test User",
+      email: "test@test.com",
+      password: "password",
+    })
+
+    const token = generateToken(
+      { userId: newUser.id },
+      process.env.RESET_JWT_SECRET,
+      "10m"
+    )
+    newUser.password_reset_token = token
+    await newUser.save()
+
+    const req = {
+      body: {
+        password: "newPassword",
+        token: token,
+      },
+    }
+
+    const emailStub = sinon.stub(sendMails, "sendPasswordUpdateMail")
+
+    await patchPasswordUpdate(req, {}, () => {})
+
+    expect(emailStub.called).to.be.true
+
+    emailStub.restore()
   })
 })

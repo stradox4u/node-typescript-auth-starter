@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.patchPasswordUpdate = exports.postPasswordReset = exports.patchVerifyEmail = exports.postResendVerificationMail = exports.postLogout = exports.postLogin = void 0;
+exports.postRefreshTokens = exports.patchPasswordUpdate = exports.postPasswordReset = exports.patchVerifyEmail = exports.postResendVerificationMail = exports.postLogout = exports.postLogin = void 0;
 const sequelize_1 = require("sequelize");
 const express_validator_1 = require("express-validator");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -198,3 +198,5 @@ const patchPasswordUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.patchPasswordUpdate = patchPasswordUpdate;
+const postRefreshTokens = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { });
+exports.postRefreshTokens = postRefreshTokens;

@@ -228,3 +228,9 @@ export const patchPasswordUpdate = async (
     return err
   }
 }
+
+export const postRefreshTokens = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {}
