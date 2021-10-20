@@ -17,20 +17,40 @@ const mail_1 = __importDefault(require("@sendgrid/mail"));
 mail_1.default.setApiKey(process.env.SENDGRID_API_KEY);
 const sender = process.env.SENDGRID_SENDER_EMAIL;
 const eventEmitter = new events_1.EventEmitter();
-eventEmitter.on('verifyEmail', (inputs) => __awaiter(void 0, void 0, void 0, function* () {
+eventEmitter.on("verifyEmail", (inputs) => __awaiter(void 0, void 0, void 0, function* () {
     const msg = {
         to: inputs.recipient,
         from: sender,
-        templateId: 'd-24ed52aaa6244b5e95c652e110c7da6f',
+        templateId: process.env.VERIFY_EMAIL_TEMPLATE_ID,
         dynamicTemplateData: {
             name: inputs.name,
-            verifyLink: inputs.verifyLink
-        }
+            verifyLink: inputs.verifyLink,
+        },
     };
     try {
         const sentMail = yield mail_1.default.send(msg);
         if (sentMail) {
-            console.log('Email sent!');
+            console.log("Email sent!");
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
+}));
+eventEmitter.on("resetPassword", (inputs) => __awaiter(void 0, void 0, void 0, function* () {
+    const msg = {
+        to: inputs.recipient,
+        from: sender,
+        templateId: process.env.RESET_PASSWORD_TEMPLATE_ID,
+        dynamicTemplateData: {
+            name: inputs.name,
+            resetLink: inputs.resetLink,
+        },
+    };
+    try {
+        const sentMail = yield mail_1.default.send(msg);
+        if (sentMail) {
+            console.log("Email sent!");
         }
     }
     catch (err) {

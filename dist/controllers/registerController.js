@@ -16,7 +16,7 @@ exports.postRegisterUser = void 0;
 const express_validator_1 = require("express-validator");
 const types_1 = require("../utils/types");
 const createUser_1 = __importDefault(require("../actions/createUser"));
-const sendVerificationEmail_1 = __importDefault(require("../actions/sendVerificationEmail"));
+const sendEmails_1 = require("../actions/sendEmails");
 function postRegisterUser(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -27,7 +27,7 @@ function postRegisterUser(req, res, next) {
             }
             const body = req.body;
             const user = yield (0, createUser_1.default)(body);
-            (0, sendVerificationEmail_1.default)(user);
+            (0, sendEmails_1.sendVerificationMail)(user);
             res.status(201).json({
                 message: "User created successfully!",
                 user: user,

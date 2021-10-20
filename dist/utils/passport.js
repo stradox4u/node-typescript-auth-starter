@@ -17,14 +17,14 @@ passport_1.default.use(new LocalStrategy({
 }, function (username, password, done) {
     return db.User.findOne({
         where: { email: username },
-    }).then((user) => {
+    })
+        .then((user) => {
         if (!user) {
             return done(null, false, { message: "Incorrect email!" });
         }
-        return bcryptjs_1.default.compare(password, user.password)
-            .then(result => {
+        return bcryptjs_1.default.compare(password, user.password).then((result) => {
             if (!result) {
-                return done(null, false, { message: 'Incorrect password!' });
+                return done(null, false, { message: "Incorrect password!" });
             }
             return done(null, user);
         });
@@ -35,10 +35,10 @@ passport_1.default.use(new LocalStrategy({
 }));
 passport_1.default.use(new JwtStrategy({
     jwtFromRequest: passport_jwt_2.ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: process.env.ACCESS_JWT_SECRET
+    secretOrKey: process.env.ACCESS_JWT_SECRET,
 }, function (jwt_payload, done) {
     return db.User.findOne({
-        where: { id: jwt_payload.userId }
+        where: { id: jwt_payload.userId },
     })
         .then((user) => {
         if (user) {

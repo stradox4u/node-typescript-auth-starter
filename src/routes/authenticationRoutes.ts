@@ -1,10 +1,12 @@
 import { Router } from "express"
+import { body } from "express-validator"
 
 import passport from "../utils/passport"
 import {
   patchVerifyEmail,
   postLogin,
   postLogout,
+  postPasswordReset,
   postResendVerificationMail,
 } from "../controllers/authController"
 import isOwner from "../middleware/isOwner"
@@ -32,5 +34,20 @@ router.post(
 )
 
 router.patch("/verify/email", patchVerifyEmail)
+
+router.post(
+  "/password/reset",
+  [
+    body("email")
+      .trim()
+      .isString()
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Please enter a valid email!"),
+  ],
+  postPasswordReset
+)
+
+router.patch("/password/reset")
 
 export default router

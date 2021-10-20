@@ -1,13 +1,17 @@
 import { NextFunction } from "express"
 import { JwtPayload } from "jsonwebtoken"
 import { Sequelize } from "sequelize"
-import { sendVerificationMail } from "../actions/sendVerificationEmail"
-import { decodeToken } from "../utils/jwtHelpers"
+import { validationResult } from "express-validator"
 
 const db = require("../../models")
+import { decodeToken } from "../utils/jwtHelpers"
 import createTokens from "../actions/loginUser"
 import { getExpiry } from "../utils/cookieHelpers"
 import { FilteredUserInterface, MyError, UserInterface } from "../utils/types"
+import {
+  sendPasswordResetMail,
+  sendVerificationMail,
+} from "../actions/sendEmails"
 import filterUser from "../actions/filterUser"
 
 export const postLogin = async (req: any, res: any, next: NextFunction) => {
@@ -127,6 +131,42 @@ export const patchVerifyEmail = async (
     res.status(200).json({
       message: "Email successfully verified",
       user: FilteredUserInterface,
+    })
+  } catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500
+    }
+    next(err)
+    return err
+  }
+}
+
+export const postPasswordReset = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {
+  try {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const error = new MyError("Validation failed!", 422, errors)
+      throw error
+    }
+    const email: string = req.body.email
+    const user: UserInterface = await db.User.findOne({
+      where: { email: email },
+    })
+    if (!user) {
+      const error = new MyError("User not found!", 404)
+      throw error
+    }
+    const token = sendPasswordResetMail(user)
+
+    user.password_reset_token = token as string
+    await user.save()
+
+    res.status(200).json({
+      message: "Reset link sent successfully",
     })
   } catch (err: any) {
     if (!err.statusCode) {
