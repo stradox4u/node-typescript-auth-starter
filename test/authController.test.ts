@@ -304,8 +304,7 @@ describe("Auth Controller Tests", () => {
         refresh_cookie: refreshCookie,
       },
     }
-    interface loginReturn {
-      message: string
+    type refreshReturn = {
       user: FilteredUserInterface
     }
 
@@ -323,7 +322,7 @@ describe("Auth Controller Tests", () => {
         this.statusCode = code
         return this
       },
-      json: function (data: loginReturn) {
+      json: function (data: refreshReturn) {
         this.user = data.user
       },
     }
@@ -331,6 +330,7 @@ describe("Auth Controller Tests", () => {
     await postRefreshTokens(req, res, () => {})
 
     expect(res).to.have.property("cookieName", "refresh_cookie")
+    expect(res).to.have.property("cookieText", refreshCookie)
     expect(res).to.have.property("statusCode", 200)
     expect(res.user.id).to.equal(newUser.id)
     expect(res.user.name).to.equal("Test User")
