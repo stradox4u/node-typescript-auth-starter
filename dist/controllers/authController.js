@@ -12,9 +12,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postPasswordReset = exports.patchVerifyEmail = exports.postResendVerificationMail = exports.postLogout = exports.postLogin = void 0;
+exports.patchPasswordUpdate = exports.postPasswordReset = exports.patchVerifyEmail = exports.postResendVerificationMail = exports.postLogout = exports.postLogin = void 0;
 const sequelize_1 = require("sequelize");
 const express_validator_1 = require("express-validator");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const db = require("../../models");
 const jwtHelpers_1 = require("../utils/jwtHelpers");
 const loginUser_1 = __importDefault(require("../actions/loginUser"));
@@ -157,3 +158,43 @@ const postPasswordReset = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.postPasswordReset = postPasswordReset;
+const patchPasswordUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            const error = new types_1.MyError("Validation failed!", 422, errors);
+            throw error;
+        }
+        const { token, password } = req.body;
+        const decodedToken = (0, jwtHelpers_1.decodeToken)(token, process.env.RESET_JWT_SECRET);
+        const { userId } = decodedToken;
+        const hashedPw = yield bcryptjs_1.default.hash(password, 12);
+        const updatedUser = yield db.User.update({
+            password: hashedPw,
+            password_reset_token: null,
+        }, {
+            where: {
+                id: userId,
+                password_reset_token: token,
+            },
+            returning: true,
+        });
+        if (!((_a = updatedUser[1][0]) === null || _a === void 0 ? void 0 : _a.dataValues)) {
+            const error = new Error("Password update failed!");
+            throw error;
+        }
+        (0, sendEmails_1.sendPasswordUpdateMail)(updatedUser[1][0].dataValues);
+        res.status(200).json({
+            message: "Password successfully updated",
+        });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+        return err;
+    }
+});
+exports.patchPasswordUpdate = patchPasswordUpdate;

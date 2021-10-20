@@ -54,3 +54,8 @@ export interface ResetPasswordInputsInterface {
   resetLink: string
   name: string
 }
+
+export type PasswordUpdatedInputsType = {
+  recipient: string
+  name: string
+}

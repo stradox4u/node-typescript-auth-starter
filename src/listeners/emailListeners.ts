@@ -1,6 +1,7 @@
 import { EventEmitter } from "events"
 import sgMail from '@sendgrid/mail'
 import {
+  PasswordUpdatedInputsType,
   ResetPasswordInputsInterface,
   VerifyEmailInputsInterface,
 } from "../utils/types"
@@ -54,4 +55,25 @@ eventEmitter.on(
   }
 )
 
+eventEmitter.on(
+  "passwordUpdated",
+  async (inputs: PasswordUpdatedInputsType) => {
+    const msg = {
+      to: inputs.recipient,
+      from: sender,
+      templateId: process.env.UPDATED_PASSWORD_TEMPLATE_ID as string,
+      dynamicTemplateData: {
+        name: inputs.name,
+      },
+    }
+    try {
+      const sentMail = await sgMail.send(msg)
+      if (sentMail) {
+        console.log("Email sent!")
+      }
+    } catch (err: any) {
+      console.log(err)
+    }
+  }
+)
 export default eventEmitter

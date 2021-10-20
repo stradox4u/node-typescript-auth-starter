@@ -21,5 +21,18 @@ router.post("/password/reset", [
         .normalizeEmail()
         .withMessage("Please enter a valid email!"),
 ], authController_1.postPasswordReset);
-router.patch("/password/reset");
+router.patch("/password/update", [
+    (0, express_validator_1.body)("password")
+        .trim()
+        .isString()
+        .isLength({ min: 8 })
+        .withMessage("Password must be min. 8 characters!"),
+    (0, express_validator_1.body)("confirm_password").custom((val, { req }) => {
+        if (val !== req.body.password) {
+            throw new Error("Passwords do not match!");
+        }
+        return true;
+    }),
+    (0, express_validator_1.body)("token").trim().isString(),
+], authController_1.patchPasswordUpdate);
 exports.default = router;

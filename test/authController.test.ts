@@ -5,6 +5,7 @@ import {
   patchVerifyEmail,
   postLogin,
   postLogout,
+  postPasswordReset,
 } from "../src/controllers/authController"
 import { generateToken } from "../src/utils/jwtHelpers"
 import { FilteredUserInterface, UserInterface } from "../src/utils/types"
@@ -149,5 +150,38 @@ describe("Auth Controller Tests", () => {
     await db.User.destroy({
       truncate: true,
     })
+  })
+
+  it("Throws error if user is not found", async () => {
+    process.env.RESET_JWT_SECRET = "s1rL3wis"
+    const newUser = await db.User.create({
+      name: "Test User",
+      email: "test@test.com",
+      password: "hashedPassword",
+    })
+
+    const req = {
+      body: {
+        email: "notTest@test.com",
+      },
+    }
+    const result = await postPasswordReset(req, {}, () => {})
+
+    expect(result).to.throw
+  })
+
+  it("Sends an email to the user on password reset request", async () => {
+    process.env.RESET_JWT_SECRET = "s1rL3wis"
+    const newUser = await db.User.create({
+      name: "Test User",
+      email: "test@test.com",
+      password: "hashedPassword",
+    })
+
+    const req = {
+      body: {
+        email: "test@test.com",
+      },
+    }
   })
 })

@@ -2,6 +2,7 @@ import { NextFunction } from "express"
 import { JwtPayload } from "jsonwebtoken"
 import { Sequelize } from "sequelize"
 import { validationResult } from "express-validator"
+import bcrypt from "bcryptjs"
 
 const db = require("../../models")
 import { decodeToken } from "../utils/jwtHelpers"
@@ -10,6 +11,7 @@ import { getExpiry } from "../utils/cookieHelpers"
 import { FilteredUserInterface, MyError, UserInterface } from "../utils/types"
 import {
   sendPasswordResetMail,
+  sendPasswordUpdateMail,
   sendVerificationMail,
 } from "../actions/sendEmails"
 import filterUser from "../actions/filterUser"
@@ -167,6 +169,56 @@ export const postPasswordReset = async (
 
     res.status(200).json({
       message: "Reset link sent successfully",
+    })
+  } catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500
+    }
+    next(err)
+    return err
+  }
+}
+
+export const patchPasswordUpdate = async (
+  req: any,
+  res: any,
+  next: NextFunction
+) => {
+  try {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      const error = new MyError("Validation failed!", 422, errors)
+      throw error
+    }
+    const { token, password } = req.body
+    const decodedToken = decodeToken(
+      token,
+      process.env.RESET_JWT_SECRET as string
+    )
+    const { userId } = decodedToken as JwtPayload
+    const hashedPw = await bcrypt.hash(password, 12)
+
+    const updatedUser = await db.User.update(
+      {
+        password: hashedPw,
+        password_reset_token: null,
+      },
+      {
+        where: {
+          id: userId,
+          password_reset_token: token,
+        },
+        returning: true,
+      }
+    )
+    if (!updatedUser[1][0]?.dataValues) {
+      const error = new Error("Password update failed!")
+      throw error
+    }
+    sendPasswordUpdateMail(updatedUser[1][0].dataValues)
+
+    res.status(200).json({
+      message: "Password successfully updated",
     })
   } catch (err: any) {
     if (!err.statusCode) {

@@ -40,3 +40,14 @@ export const sendPasswordResetMail = (user: UserInterface) => {
     throw err
   }
 }
+
+export const sendPasswordUpdateMail = (user: UserInterface) => {
+  try {
+    eventEmitter.emit("passwordUpdated", {
+      recipient: user.email,
+      name: user.name,
+    })
+  } catch (err: any) {
+    throw err
+  }
+}

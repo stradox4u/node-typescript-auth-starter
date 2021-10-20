@@ -57,4 +57,23 @@ eventEmitter.on("resetPassword", (inputs) => __awaiter(void 0, void 0, void 0, f
         console.log(err);
     }
 }));
+eventEmitter.on("passwordUpdated", (inputs) => __awaiter(void 0, void 0, void 0, function* () {
+    const msg = {
+        to: inputs.recipient,
+        from: sender,
+        templateId: process.env.UPDATED_PASSWORD_TEMPLATE_ID,
+        dynamicTemplateData: {
+            name: inputs.name,
+        },
+    };
+    try {
+        const sentMail = yield mail_1.default.send(msg);
+        if (sentMail) {
+            console.log("Email sent!");
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
+}));
 exports.default = eventEmitter;
