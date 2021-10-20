@@ -12,14 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.patchVerifyEmail = exports.postResendVerificationMail = exports.postLogout = exports.postLogin = void 0;
+exports.postRefreshTokens = exports.patchPasswordUpdate = exports.postPasswordReset = exports.patchVerifyEmail = exports.postResendVerificationMail = exports.postLogout = exports.postLogin = void 0;
 const sequelize_1 = require("sequelize");
-const sendVerificationEmail_1 = require("../actions/sendVerificationEmail");
-const jwtHelpers_1 = require("../utils/jwtHelpers");
+const express_validator_1 = require("express-validator");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const db = require("../../models");
+const jwtHelpers_1 = require("../utils/jwtHelpers");
 const loginUser_1 = __importDefault(require("../actions/loginUser"));
 const cookieHelpers_1 = require("../utils/cookieHelpers");
 const types_1 = require("../utils/types");
+const sendEmails_1 = require("../actions/sendEmails");
 const filterUser_1 = __importDefault(require("../actions/filterUser"));
 const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -81,7 +83,7 @@ const postLogout = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 exports.postLogout = postLogout;
 const postResendVerificationMail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        (0, sendVerificationEmail_1.sendVerificationMail)(req.user);
+        (0, sendEmails_1.sendVerificationMail)(req.user);
         res.status(200).json({
             message: "Verification email resent successfully",
         });
@@ -110,10 +112,10 @@ const patchVerifyEmail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
             const error = new types_1.MyError("Verification failed", 500);
             throw error;
         }
-        const filteredUser = (0, filterUser_1.default)(updatedUser[1][0].dataValues);
+        const FilteredUserInterface = (0, filterUser_1.default)(updatedUser[1][0].dataValues);
         res.status(200).json({
             message: "Email successfully verified",
-            user: filteredUser,
+            user: FilteredUserInterface,
         });
     }
     catch (err) {
@@ -125,3 +127,76 @@ const patchVerifyEmail = (req, res, next) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.patchVerifyEmail = patchVerifyEmail;
+const postPasswordReset = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            const error = new types_1.MyError("Validation failed!", 422, errors);
+            throw error;
+        }
+        const email = req.body.email;
+        const user = yield db.User.findOne({
+            where: { email: email },
+        });
+        if (!user) {
+            const error = new types_1.MyError("User not found!", 404);
+            throw error;
+        }
+        const token = (0, sendEmails_1.sendPasswordResetMail)(user);
+        user.password_reset_token = token;
+        yield user.save();
+        res.status(200).json({
+            message: "Reset link sent successfully",
+        });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+        return err;
+    }
+});
+exports.postPasswordReset = postPasswordReset;
+const patchPasswordUpdate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            const error = new types_1.MyError("Validation failed!", 422, errors);
+            throw error;
+        }
+        const { token, password } = req.body;
+        const decodedToken = (0, jwtHelpers_1.decodeToken)(token, process.env.RESET_JWT_SECRET);
+        const { userId } = decodedToken;
+        const hashedPw = yield bcryptjs_1.default.hash(password, 12);
+        const updatedUser = yield db.User.update({
+            password: hashedPw,
+            password_reset_token: null,
+        }, {
+            where: {
+                id: userId,
+                password_reset_token: token,
+            },
+            returning: true,
+        });
+        if (!((_a = updatedUser[1][0]) === null || _a === void 0 ? void 0 : _a.dataValues)) {
+            const error = new Error("Password update failed!");
+            throw error;
+        }
+        (0, sendEmails_1.sendPasswordUpdateMail)(updatedUser[1][0].dataValues);
+        res.status(200).json({
+            message: "Password successfully updated",
+        });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+        return err;
+    }
+});
+exports.patchPasswordUpdate = patchPasswordUpdate;
+const postRefreshTokens = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () { });
+exports.postRefreshTokens = postRefreshTokens;

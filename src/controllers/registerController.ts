@@ -3,7 +3,7 @@ import { validationResult } from 'express-validator'
 
 import { MyError, RegisterUserBodyInterface } from "../utils/types"
 import createUser from "../actions/createUser"
-import sendVerificationMail from "../actions/sendVerificationEmail"
+import { sendVerificationMail } from "../actions/sendEmails"
 
 export async function postRegisterUser(req: any, res: any, next: NextFunction) {
   try {

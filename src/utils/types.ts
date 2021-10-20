@@ -4,10 +4,11 @@ export interface UserInterface {
   email: string
   password: string
   email_verified_at?: Date
-  password_reset_token?: string
+  password_reset_token: string | null
   blacklisted_tokens?: Array<string>
   createdAt: Date
   updatedAt: Date
+  save: Function
 }
 
 export class MyError extends Error {
@@ -46,4 +47,15 @@ export interface FilteredUserInterface {
 export interface LoginTokensInterface {
   token: string | Error
   refreshToken: string | Error
+}
+
+export interface ResetPasswordInputsInterface {
+  recipient: string
+  resetLink: string
+  name: string
+}
+
+export type PasswordUpdatedInputsType = {
+  recipient: string
+  name: string
 }

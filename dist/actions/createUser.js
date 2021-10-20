@@ -13,14 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const db = require('../../models');
+const db = require("../../models");
 exports.default = (input) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const hashedPw = yield bcryptjs_1.default.hash(input.password, 12);
         const newUser = yield db.User.create({
             name: input.name,
             email: input.email,
-            password: hashedPw
+            password: hashedPw,
         });
         return newUser;
     }
