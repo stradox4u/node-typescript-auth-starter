@@ -9,6 +9,7 @@ import {
   postLogin,
   postLogout,
   postPasswordReset,
+  postRefreshTokens,
 } from "../src/controllers/authController"
 import { generateToken } from "../src/utils/jwtHelpers"
 import { FilteredUserInterface } from "../src/utils/types"
@@ -244,6 +245,9 @@ describe("Auth Controller Tests", () => {
 
     expect(passwordUpdated).to.be.true
 
+    await db.User.destroy({
+      truncate: true,
+    })
     emailStub.restore()
   })
 
@@ -276,6 +280,64 @@ describe("Auth Controller Tests", () => {
 
     expect(emailStub.called).to.be.true
 
+    await db.User.destroy({
+      truncate: true,
+    })
     emailStub.restore()
+  })
+
+  it("Sets the refresh cookie and returns the access token and user on token refresh", async () => {
+    const newUser = await db.User.create({
+      name: "Test User",
+      email: "test@test.com",
+      password: "password",
+    })
+    const refreshCookie = generateToken(
+      {
+        userId: newUser.id,
+      },
+      process.env.REFRESH_JWT_SECRET as string,
+      "7d"
+    )
+    const req = {
+      cookies: {
+        refresh_cookie: refreshCookie,
+      },
+    }
+    type refreshReturn = {
+      user: FilteredUserInterface
+    }
+
+    const res = {
+      cookieText: "",
+      cookieName: "",
+      statusCode: 500,
+      user: {} as FilteredUserInterface,
+      cookie: function (name: string, value: string) {
+        this.cookieText = value
+        this.cookieName = name
+        return this
+      },
+      status: function (code: number) {
+        this.statusCode = code
+        return this
+      },
+      json: function (data: refreshReturn) {
+        this.user = data.user
+      },
+    }
+
+    await postRefreshTokens(req, res, () => {})
+
+    expect(res).to.have.property("cookieName", "refresh_cookie")
+    expect(res).to.have.property("cookieText", refreshCookie)
+    expect(res).to.have.property("statusCode", 200)
+    expect(res.user.id).to.equal(newUser.id)
+    expect(res.user.name).to.equal("Test User")
+    expect(res.user.email).to.equal("test@test.com")
+
+    await db.User.destroy({
+      truncate: true,
+    })
   })
 })

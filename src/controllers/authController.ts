@@ -5,7 +5,7 @@ import { validationResult } from "express-validator"
 import bcrypt from "bcryptjs"
 
 const db = require("../../models")
-import { decodeToken } from "../utils/jwtHelpers"
+import { decodeToken, generateToken } from "../utils/jwtHelpers"
 import createTokens from "../actions/loginUser"
 import { getExpiry } from "../utils/cookieHelpers"
 import { FilteredUserInterface, MyError, UserInterface } from "../utils/types"
@@ -32,7 +32,7 @@ export const postLogin = async (req: any, res: any, next: NextFunction) => {
         expires: expiry,
         httpOnly: true,
         // sameSite: "None",
-        secure: true,
+        // secure: true,
       })
       .status(200)
       .json({
@@ -233,4 +233,48 @@ export const postRefreshTokens = async (
   req: any,
   res: any,
   next: NextFunction
-) => {}
+) => {
+  const refToken = req.cookies.refresh_cookie
+  console.log()
+  try {
+    const decodedToken = decodeToken(
+      refToken,
+      process.env.REFRESH_JWT_SECRET as string
+    )
+    const { userId } = decodedToken as JwtPayload
+    const user: UserInterface = await db.User.findOne({
+      where: { id: userId },
+    })
+    if (!user) {
+      const error = new MyError("User not found", 404)
+      throw error
+    }
+    if (user.blacklisted_tokens?.includes(refToken)) {
+      const error = new MyError("Unauthorized!", 401)
+      throw error
+    }
+    const { token, refreshToken } = createTokens(user)
+    const filteredUser = filterUser(user)
+    const expiry = getExpiry()
+
+    res
+      .cookie("refresh_cookie", refreshToken, {
+        expires: expiry,
+        httpOnly: true,
+        // sameSite: "None",
+        // secure: true,
+      })
+      .status(200)
+      .json({
+        token: token,
+        expires_in: 600_000,
+        user: filteredUser,
+      })
+  } catch (err: any) {
+    if (!err.statusCode) {
+      err.statusCode = 500
+    }
+    next(err)
+    return err
+  }
+}
