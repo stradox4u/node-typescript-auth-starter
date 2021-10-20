@@ -9,6 +9,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
 const passport_1 = __importDefault(require("./utils/passport"));
 const database_1 = __importDefault(require("./utils/database"));
+const tokenCleanup_1 = __importDefault(require("./actions/tokenCleanup"));
 const registerRoutes_1 = __importDefault(require("./routes/registerRoutes"));
 const authenticationRoutes_1 = __importDefault(require("./routes/authenticationRoutes"));
 const port = process.env.APP_PORT;
@@ -45,5 +46,5 @@ const checkDbConn = () => {
     });
 };
 checkDbConn();
-// tokenCleanup()
+(0, tokenCleanup_1.default)();
 app.listen(port);

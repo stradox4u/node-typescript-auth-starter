@@ -55,7 +55,7 @@ const checkDbConn = () => {
 }
 
 checkDbConn()
-// tokenCleanup()
+tokenCleanup()
 
 app.listen(port)
 
