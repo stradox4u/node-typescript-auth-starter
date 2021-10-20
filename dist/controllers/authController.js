@@ -37,7 +37,7 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             expires: expiry,
             httpOnly: true,
             // sameSite: "None",
-            secure: true,
+            // secure: true,
         })
             .status(200)
             .json({
@@ -201,6 +201,7 @@ exports.patchPasswordUpdate = patchPasswordUpdate;
 const postRefreshTokens = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _b;
     const refToken = req.cookies.refresh_cookie;
+    console.log();
     try {
         const decodedToken = (0, jwtHelpers_1.decodeToken)(refToken, process.env.REFRESH_JWT_SECRET);
         const { userId } = decodedToken;
@@ -222,8 +223,8 @@ const postRefreshTokens = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             .cookie("refresh_cookie", refreshToken, {
             expires: expiry,
             httpOnly: true,
-            sameSite: "None",
-            secure: true,
+            // sameSite: "None",
+            // secure: true,
         })
             .status(200)
             .json({

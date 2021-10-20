@@ -32,7 +32,7 @@ export const postLogin = async (req: any, res: any, next: NextFunction) => {
         expires: expiry,
         httpOnly: true,
         // sameSite: "None",
-        secure: true,
+        // secure: true,
       })
       .status(200)
       .json({
@@ -235,6 +235,7 @@ export const postRefreshTokens = async (
   next: NextFunction
 ) => {
   const refToken = req.cookies.refresh_cookie
+  console.log()
   try {
     const decodedToken = decodeToken(
       refToken,
@@ -260,8 +261,8 @@ export const postRefreshTokens = async (
       .cookie("refresh_cookie", refreshToken, {
         expires: expiry,
         httpOnly: true,
-        sameSite: "None",
-        secure: true,
+        // sameSite: "None",
+        // secure: true,
       })
       .status(200)
       .json({
