@@ -1,0 +1,9 @@
+{
+  "test": {
+    "username": "postgres",
+    "password": "password",
+    "database": "node_auth_testing_db",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}
