@@ -49,11 +49,12 @@ passport.use(
         where: { id: jwt_payload.userId },
       })
         .then((user: UserInterface) => {
-          if (user) {
-            return done(null, user)
-          } else {
-            return done(null, false)
-          }
+          // if (user) {
+          //   return done(null, user)
+          // } else {
+          //   return done(null, false)
+          // }
+          return done(null, user || false)
         })
         .catch((err: Error) => {
           return done(err, false)
